@@ -2,7 +2,9 @@
 
 ## Overview
 
-The "QBertLevelGenerator" is a procedural generation algorithm designed to create Q*Bert-inspired levels. These levels follow a pyramid-like grid structure where each block can contain items, obstacles, or spawn points for the player and goal. The unique design philosophy of this algorithm focuses on ensuring a **solvable path** from the player's start to the goal (a black sphere) by laying out the critical path first. This approach guarantees level solvability, which is essential in procedurally generated games.
+The "QBertLevelGenerator" is a procedural generation algorithm designed to create Q*Bert-inspired levels. These levels follow a pyramid-like grid structure where each block can contain items and obstacles or it could be the spawn point for the player or the goal.
+
+The challenge for the procedural engine is ensuring a **solvable path** from the player's start to the goal (a black sphere) while keeping generated levels diverse and modifiable. So instead of trying to optimise random block placement such that critical paths exist, the challenge is solved by laying out the critical path first and then adding random blocks. This approach guarantees level solvability and with a couple of control variables also makes levels customisable.
 
 ## Q*Bert Level Layout
 
