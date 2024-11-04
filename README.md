@@ -1,77 +1,98 @@
 # QBertLevelGenerator
 
-## Case Study: Critical Path-Based Procedural Level Generation
+## Overview
 
-### Objective
-The "QBertLevelGenerator" algorithm aims to procedurally generate game levels that are unique, replayable, and **guarantee a valid path** from the player’s starting position to the goal (the black sphere). By prioritizing the creation of a critical path before populating the rest of the level, this algorithm ensures that every generated level is solvable, enhancing player satisfaction and gameplay experience.
+The "QBertLevelGenerator" is a procedural generation algorithm designed to create Q*Bert-inspired levels. These levels follow a pyramid-like grid structure where each block can contain items, obstacles, or spawn points for the player and goal. The unique design philosophy of this algorithm focuses on ensuring a **solvable path** from the player's start to the goal (a black sphere) by laying out the critical path first. This approach guarantees level solvability, which is essential in procedurally generated games.
 
-### Algorithm Overview
+## Q*Bert Level Layout
 
-1. **Critical Path Generation:**
-   - **Starting Point Selection:** The algorithm begins by selecting a random starting block on the grid for the player to spawn.
-   - **Path Construction:** Using the `walkerSteps` parameter, it generates a critical path from the starting block to the goal by moving step-by-step in a random direction (left or right).
-   - **Goal Placement:** The last block in the critical path is designated as the goal location (the black sphere).
+In a Q*Bert-inspired game, levels are organized in a staggered, triangular grid, where each block connects diagonally with neighboring blocks. This distinct layout sets up a playable area with strategic pathways that guide player movement.
 
-2. **Grid Population:**
-   - **Filling Empty Blocks:** After establishing the critical path, the algorithm fills additional blocks based on the `fillMapNumber` parameter, adding complexity and variety to the level without obstructing the critical path.
-   - **Item and Obstacle Placement:** Random items (like red gems, red spheres, and black spheres) are placed on filled blocks to enhance gameplay dynamics.
+![Insert Screenshot 1: An example of the empty Q*Bert grid layout to introduce the structure.]*
 
-3. **Ensuring Solvability:**
-   - By generating the critical path first, the algorithm avoids the common procedural generation issue where random levels may be unsolvable.
-   - This method guarantees that the player can always reach the goal, providing a consistent gameplay experience.
+## Key Components of the Algorithm
 
-### Key Components and Variables
+The generation process is managed by three main scripts: **BlockGridCreator.cs**, **Block.cs**, and **ProceduralGenerator.cs**. Each plays a specific role in constructing and populating the level.
 
-- **`walkerSteps` (int):** Determines the length of the critical path. A higher number results in a longer path from the player to the goal.
-- **`fillMapNumber` (int):** Specifies how many additional blocks to fill after the critical path is established, impacting grid density and obstacles.
-- **`Block.cs`:** Manages individual block properties and behaviors, such as position (`row`, `col`), state (`isEmpty`), and contents (gems, spheres).
-- **`BlockGridCreator.cs`:** Handles the creation and arrangement of the grid based on `gridSizeX` and `gridSizeY`, setting up spatial relationships between blocks.
-- **`ProceduralGenerator.cs`:** Implements the critical path algorithm and populates the grid with additional blocks and items.
+### 1. Building the Grid Layout with `BlockGridCreator.cs`
 
-### Visual Representation
+The `BlockGridCreator.cs` script is responsible for creating the level’s grid structure. Using adjustable grid dimensions (`gridSizeX` and `gridSizeY`) and block spacing (`blockWidth` and `blockHypotenuse`), it arranges blocks in a staggered layout that mimics a pyramid. This layout forms the basis of the Q*Bert-style gameplay space.
 
-To better illustrate the algorithm's functionality, consider the following stages of level generation:
+- **Parameters:**
+  - `gridSizeX` and `gridSizeY`: Define the grid’s width and height.
+  - `blockWidth` and `blockHypotenuse`: Control the spacing between blocks, creating the staggered layout.
 
-1. **Initial Grid with Empty Blocks**
+**Process:**
+- Each block is placed in rows with staggered columns to form the pyramid layout.
+- Jump vectors (`LeftJumpVector` and `RightJumpVector`) are calculated, guiding player movement directions.
 
-   ![Insert Screenshot 1: An empty grid showcasing all blocks in their initial state before generation.]
+![Insert Screenshot 2: The grid created by `BlockGridCreator.cs`, showing how blocks are positioned in a pyramid structure.]*
 
-2. **Critical Path Creation**
+### 2. Defining Block Properties with `Block.cs`
 
-   ![Insert Screenshot 2: The grid highlighting the critical path from the player's starting block to the goal block (black sphere).]
+Each block within the grid is defined by `Block.cs`, which assigns properties such as state (empty or filled) and potential contents (gems, spheres). Blocks know their own position (`row` and `col`), any items they hold, and connections to neighbors, allowing for flexible gameplay interactions.
 
-3. **Populating Additional Blocks**
+- **Key Properties:**
+  - **row and col:** Position in the grid.
+  - **isEmpty:** Indicates whether the block is empty or filled.
+  - **hasBlackGem, hasRedGem, etc.:** Tracks which items are present on the block.
 
-   ![Insert Screenshot 3: The grid after additional blocks have been filled based on `fillMapNumber`, showing increased complexity.]
+**Process:**
+- Each block’s state and contents are dynamically managed.
+- Visual effects and animations are applied as necessary, enabling elements like gem animations.
 
-4. **Final Level with Items and Obstacles**
+![Insert Screenshot 3: Example of blocks with various properties set, showing items like gems or spheres on different blocks.]*
 
-   ![Insert Screenshot 4: The completed level with all items (gems, spheres) placed, ready for gameplay.]
+### 3. Laying Out the Solvable Path with `ProceduralGenerator.cs`
 
+The `ProceduralGenerator.cs` script is the core of the level’s procedural generation. Its design philosophy emphasizes **ensuring solvability** by laying out a critical path before filling the remaining blocks with randomized elements. This reverse approach—where the critical path is established first—was chosen to avoid the complexity of validating randomly generated layouts for solvability, a step that would have been outside the project’s scope.
+
+#### Critical Path-First Approach
+
+1. **Starting with the Goal in Mind:** The algorithm begins by selecting a starting block and then creates a path towards the black sphere (the goal). This ensures that a solvable route is always in place.
+2. **Path Construction:** Using the `walkerSteps` parameter, a path is generated step-by-step from the starting block to the goal, ensuring continuous movement through adjacent blocks.
+3. **Populating the Remaining Grid:** After laying out the critical path, additional blocks are filled based on the `fillMapNumber` parameter, adding complexity without interfering with the critical path.
+
+- **Key Variables:**
+  - **walkerSteps**: Defines the length of the critical path.
+  - **fillMapNumber**: Controls the number of additional filled blocks after the path is set.
+  - **Item Prefabs** (e.g., `blackGemPrefab`, `redGem`, `redSpherePrefab`): Prefabs for items that populate the grid, adding variation to each level.
+
+**Process:**
+1. **Critical Path Creation:** The algorithm lays out the critical path first, ensuring the player can always reach the goal.
+2. **Random Block Filling:** Additional blocks are filled randomly, adding challenge and interest without obstructing the main path.
+3. **Item Placement:** Items are added to various blocks, creating gameplay elements and enhancing player interaction.
+
+![Insert Screenshot 4: The grid after generating the critical path, highlighting the direct path from the start to the goal.]*
+
+![Insert Screenshot 5: The fully populated grid with additional blocks and items, demonstrating the final level structure.]*
+
+### Example Levels and Parameters
+
+Below are examples of levels generated with different values for `walkerSteps` and `fillMapNumber`, showing the flexibility and scalability of the algorithm.
+
+1. **Short Path, Sparse Grid**
+
+   - *Parameters:* `walkerSteps = 3`, `fillMapNumber = 2`
+   - ![Insert Screenshot 6: A simple level with a short critical path and minimal additional blocks, suitable for beginners.]*
+  
+2. **Long Path, Dense Grid**
+
+   - *Parameters:* `walkerSteps = 10`, `fillMapNumber = 15`
+   - ![Insert Screenshot 7: A complex level with a long critical path and many additional blocks, offering a challenging experience.]*
+  
 ### Advantages of the Critical Path Approach
 
-- **Guaranteed Solvability:** By constructing the path first, the algorithm ensures that every level is playable without needing complex validation checks after generation.
-- **Controlled Difficulty:** Adjusting `walkerSteps` and `fillMapNumber` allows for fine-tuning the level’s difficulty and complexity.
-- **Enhanced Replayability:** While the critical path remains a central feature, the random placement of additional blocks and items ensures that each level feels fresh and unpredictable.
-
-### Example Levels
-
-Here are examples of levels generated with different input variables:
-
-- **Short Path, Sparse Grid**
-
-  - *Parameters:* `walkerSteps = 3`, `fillMapNumber = 2`
-  - ![Insert Screenshot 5: A simple level with a short critical path and minimal additional blocks, suitable for beginners.]
-
-- **Long Path, Dense Grid**
-
-  - *Parameters:* `walkerSteps = 10`, `fillMapNumber = 15`
-  - ![Insert Screenshot 6: A complex level with a long critical path and many additional blocks, offering a challenging experience.]
+- **Guaranteed Solvability:** By laying out the critical path first, the algorithm ensures that each level is playable without requiring additional validation checks.
+- **Controlled Difficulty:** Parameters like `walkerSteps` and `fillMapNumber` allow for fine-tuning the level’s complexity and challenge.
+- **Enhanced Replayability:** Randomized elements, such as block filling and item placement, ensure each level remains fresh and engaging.
 
 ### Future Enhancements
 
-- **Dynamic Difficulty Adjustment:** Implementing a system to adjust `walkerSteps` and `fillMapNumber` based on player performance could further enhance gameplay.
-- **Alternative Pathways:** Introducing branching paths off the critical path could add exploration elements and increase replayability.
-- **Visual Variety:** Incorporating different block types and visual themes as levels progress can maintain a fresh aesthetic experience.
+To further improve the generation process, the following features could be considered:
 
-By focusing on a critical path-first approach, the "QBertLevelGenerator" effectively addresses common challenges in procedural generation, resulting in a robust and engaging level creation system.
+- **Dynamic Difficulty Adjustment:** Adjusting `walkerSteps` and `fillMapNumber` based on player performance.
+- **Branching Paths:** Adding optional paths for exploration beyond the critical path.
+- **Themed Blocks:** Introducing different block types and visual themes as levels progress.
+
+By focusing on a critical path-first approach, the "QBertLevelGenerator" achieves a balanced solution between uniqueness and playability, exemplifying a robust design for procedural level generation.
